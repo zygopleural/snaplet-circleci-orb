@@ -1,0 +1,41 @@
+description: |
+  Snaplet gives developers production-accurate PostgreSQL data and preview databases that they can code against.
+  It does this by capturing a 'snapshot' of a database, copying the schema, and providing a JavaScript runtime for
+  transforming, reducing (subsetting) and generating synthetic data.
+  Developers can then share these snapshots with their team for collaborative development.
+
+parameters:
+  token:
+    description: |
+      Set the private repository token as the value of the
+      variable SNAPLET_ACCESS_TOKEN using CircleCI Environment Variables.
+    type: env_var_name
+    default: SNAPLET_ACCESS_TOKEN
+  validate:
+    description: |
+      Validate the downloaded binary before performing restore.
+    type: boolean
+    default: true
+  when:
+    description: |
+      When should this step run?
+    type: string
+    default: "always"
+
+steps:
+  - run:
+      name: Download Snaplet binary
+      command: <<include(scripts/download.sh)>>
+      when: << parameters.when >>
+
+  - when:
+      condition: << parameters.validate >>
+      steps:
+        - run:
+            name: Validate Snaplet binary
+            command: <<include(scripts/validate.sh)>>
+  - run:
+      name: Restore latest snapshot
+      command: <<include(scripts/restore.sh)>>
+      environment:
+        SNAPLET_ACCESS_TOKEN_ENV_VAR_NAME: << parameters.token >>

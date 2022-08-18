@@ -1,0 +1,31 @@
+description: |
+  Example restoration of a PostgreSQL DB
+usage:
+  version: 2.1
+  orbs:
+    snaplet: zygopleural/snaplet@1.2.3
+  jobs:
+    checkout-and-restore:
+      docker:
+      - image: cimg/base:current
+      - image: cimg/postgres:14.0
+        environment:
+          POSTGRES_USER: snaplet
+          POSTGRES_PASSWORD: snaplet
+          POSTGRES_DB: snaplet
+      environment:
+        PGPASSWORD: snaplet
+      steps:
+        - checkout:
+            path: ~/repo
+        - run:
+            name: Waiting for Postgres to be ready
+            command: dockerize -wait tcp://localhost:5432 -timeout 1m
+        - run:
+            name: Initial migration
+            command: psql --host localhost --username snaplet --dbname snaplet --echo-all --file ./migration.sql
+        - snaplet/restore
+  workflows:
+    ci:
+      jobs:
+        - checkout-and-restore

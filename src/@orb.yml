@@ -1,0 +1,11 @@
+version: 2.1
+
+description: |
+  Snaplet gives developers production-accurate PostgreSQL data and preview databases that they can code against.
+  It does this by capturing a 'snapshot' of a database, copying the schema, and providing a JavaScript runtime for
+  transforming, reducing (subsetting) and generating synthetic data.
+  Developers can then share these snapshots with their team for collaborative development.
+
+display:
+  home_url: https://github.com/zygopleural/snaplet-circleci-orb
+  source_url: https://github.com/zygopleural/snaplet-circleci-orb

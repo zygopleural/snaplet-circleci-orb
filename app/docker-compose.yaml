@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: snaplet
+      POSTGRES_PASSWORD: snaplet
+      POSTGRES_DB: snaplet
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./migration.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+      - app-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  app-volume: #

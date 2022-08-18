@@ -1,0 +1,5 @@
+{
+  "projectId": "cl6z5sjbk17740357lyeea4w7jj",
+  "databaseUrl": "postgresql://snaplet:snaplet@localhost:5432/snaplet",
+  "publicKey": "-----BEGIN RSA PUBLIC KEY-----\nMIIBigKCAYEAu4Rb//5qrpqkywKuo8nfJZU+aYzg2DUn9+UpIrJnoqjh/1kBzWEZ\nT7cbw85Kk3+wTTIfGJrZAISEzTgGZpO380uKIOL//LeeZhQFE4jVokjcb35suKb2\nrho7YceaDxDJxrEDeFliZDs5sh9vZ++cN+IkEpBzT598bNdrOWVe6K/uKiy/mSd0\nCtz3kWqfPatUjcZRG5RxlTC8t5nBdnKJ3VvCjJF4xvfDas9fm0v1lyrylc8xPuhC\ndgrhNu2Blwwi1D4xVAM0tn5MVnWVPz+zQSBG5/P3f5i9QFEa1LxzPwCapoxjPvaJ\nlaFnVDogzilbeg9ATT/OMAxTcpx7ACLVYdsmpdCEtsnFOJyeBlcd8yKl9tq8XDG9\nivzcpBjskdgj4b3QsWGylN8BOuCHvNotH2psLJvO/NHhvSDWoEy+EPW/XL4vK3Hz\nJPoPYhpz7WjQOBg6KoVb1yNQdaNFXAB2V3fq6Daj3OBKksOSRuuG5VwkAGR19OCE\nJMO+5o4DmbIdAgMBAAE=\n-----END RSA PUBLIC KEY-----\n"
+}

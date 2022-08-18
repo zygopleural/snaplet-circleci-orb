@@ -1,0 +1,73 @@
+version: 2.1
+
+orbs:
+  snaplet: zygopleural/snaplet@dev:<<pipeline.git.revision>>
+  orb-tools: circleci/orb-tools@11.1
+
+filters: &filters
+  tags:
+    only: /.*/
+
+jobs:
+  restore-test:
+    working_directory: ~/repo/app
+    docker:
+      - image: cimg/base:current
+      - image: cimg/postgres:14.0
+        environment:
+          POSTGRES_USER: snaplet
+          POSTGRES_PASSWORD: snaplet
+          POSTGRES_DB: snaplet
+    environment:
+      PGPASSWORD: snaplet
+    steps:
+      - checkout:
+          path: ~/repo
+      - run:
+          name: Waiting for Postgres to be ready
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Initial migration
+          command: psql --host localhost --username snaplet --dbname snaplet --echo-all --file ./migration.sql
+      - run:
+          name: Assert empty
+          command: |
+            COUNT=$(psql -h localhost -U snaplet -d snaplet -AXqtc "SELECT COUNT(*) FROM cats;")
+            exit $COUNT
+      - snaplet/restore
+      - run:
+          name: Assert not-empty
+          command: |
+            COUNT=$(psql -h localhost -U snaplet -d snaplet -AXqtc "SELECT COUNT(*) FROM cats;")
+            if [ "${COUNT}" -eq "0" ]
+            then 
+              exit 1
+            else 
+              echo "#cats = ${COUNT}"
+              exit 0
+            fi
+
+workflows:
+  test-deploy:
+    jobs:
+      # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
+      - restore-test:
+          filters: *filters
+          context: snaplet-orb-tests
+
+      - orb-tools/pack:
+          filters: *filters
+
+      - orb-tools/publish:
+          orb-name: zygopleural/snaplet
+          vcs-type: << pipeline.project.type >>
+          pub-type: production
+          requires:
+            - orb-tools/pack
+            - restore-test
+          context: orb-publishing
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/

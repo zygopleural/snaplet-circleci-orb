@@ -21,6 +21,11 @@ parameters:
       When should this step run?
     type: string
     default: "always"
+  database-url:
+    description: |
+      Override for databaseUrl in config.json
+    type: string
+    default: ""
 
 steps:
   - run:
@@ -39,3 +44,4 @@ steps:
       command: <<include(scripts/restore.sh)>>
       environment:
         SNAPLET_ACCESS_TOKEN_ENV_VAR_NAME: << parameters.token >>
+        DATABASE_URL_OVERRIDE: << parameters.database-url >>

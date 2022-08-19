@@ -46,12 +46,57 @@ jobs:
               echo "#cats = ${COUNT}"
               exit 0
             fi
+  override-test:
+    working_directory: ~/repo/app
+    docker:
+      - image: cimg/base:current
+      - image: cimg/postgres:14.0
+        environment:
+          POSTGRES_USER: snaplet
+          POSTGRES_PASSWORD: snaplet
+          POSTGRES_DB: snaplet
+    environment:
+      PGPASSWORD: snaplet
+    steps:
+      - checkout:
+          path: ~/repo
+      - run:
+          name: Waiting for Postgres to be ready
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Create new table
+          command: psql -h localhost -U snaplet -AXqtc "CREATE DATABASE telpans WITH OWNER = snaplet;"
+      - run:
+          name: Initial migration
+          command: psql --host localhost --username snaplet --dbname telpans --echo-all --file ./migration.sql
+      - run:
+          name: Assert empty
+          command: |
+            COUNT=$(psql -h localhost -U snaplet -d telpans -AXqtc "SELECT COUNT(*) FROM cats;")
+            exit $COUNT
+      - snaplet/restore:
+          database-url: postgresql://snaplet:snaplet@localhost:5432/telpans
+      - run:
+          name: Assert not-empty
+          command: |
+            COUNT=$(psql -h localhost -U snaplet -d telpans -AXqtc "SELECT COUNT(*) FROM cats;")
+            if [ "${COUNT}" -eq "0" ]
+            then 
+              exit 1
+            else 
+              echo "#cats = ${COUNT}"
+              exit 0
+            fi
 
 workflows:
   test-deploy:
     jobs:
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
       - restore-test:
+          filters: *filters
+          context: snaplet-orb-tests
+      
+      - override-test:
           filters: *filters
           context: snaplet-orb-tests
 
@@ -65,6 +110,7 @@ workflows:
           requires:
             - orb-tools/pack
             - restore-test
+            - override-test
           context: orb-publishing
           filters:
             branches:
